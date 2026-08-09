@@ -1,15 +1,6 @@
-# dependencies
 node_modules/
-
-# local env / secrets
+dist/
 .env
-.env.*.local
-
-# cache & runtime
-warmane-cache.json
-pw-profile/
-playwright-report/
-
-# OS/editor junk
-.DS_Store
-Thumbs.db
+.cache/
+playwright/.cache/
+*.log
