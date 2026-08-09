@@ -17,6 +17,17 @@ Look up a character with one slash command and receive a mobile-readable equipme
 - Includes an **Open Armory** link and a resilient text-embed fallback.
 - Runs without a database, web dashboard, message-content intent, or guild-roster sync.
 
+## Upgrade advisor preview
+
+The repository now includes a **non-live** `/upgrade` concept preview. It does not inspect a character or call any item an upgrade. Instead, it shows the post format and exposes the Warmane class-forum sources awaiting PizzaWarriors officer review.
+
+```text
+/upgrade preview name:Lausudo class:Warrior
+/upgrade sources class:Warrior
+```
+
+This is intentionally safe to test in Discord: no profile is approved yet, and the command cannot make a gear recommendation. Read the [upgrade-advisor walkthrough](docs/UPGRADE-ADVISOR.md) before deciding whether to activate the real feature.
+
 ## Command
 
 ```text

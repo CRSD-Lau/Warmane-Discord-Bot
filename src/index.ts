@@ -17,6 +17,7 @@ import { WarmaneArmory } from "./armory.js";
 import { ArmoryCardRenderer } from "./card.js";
 import { config } from "./config.js";
 import { calculateGearScore } from "./gearscore.js";
+import { createUpgradePreview, findUpgradeProfiles, formatUpgradeSources } from "./upgrade.js";
 
 const command = new SlashCommandBuilder()
   .setName("armory")
@@ -27,6 +28,27 @@ const command = new SlashCommandBuilder()
     { name: "Icecrown", value: "Icecrown" },
     { name: "Blackrock", value: "Blackrock" },
   ));
+
+const upgradeCommand = new SlashCommandBuilder()
+  .setName("upgrade")
+  .setDescription("Preview PizzaWarriors' research-backed upgrade advisor")
+  .addSubcommand((subcommand) => subcommand
+    .setName("preview")
+    .setDescription("See a safe preview of the future upgrade result")
+    .addStringOption((option) => option.setName("name").setDescription("Character name for the mock post").setRequired(false).setMaxLength(12))
+    .addStringOption((option) => option.setName("class").setDescription("Class to preview").setRequired(false).addChoices(
+      { name: "Death Knight", value: "Death Knight" }, { name: "Druid", value: "Druid" }, { name: "Hunter", value: "Hunter" },
+      { name: "Mage", value: "Mage" }, { name: "Paladin", value: "Paladin" }, { name: "Priest", value: "Priest" },
+      { name: "Rogue", value: "Rogue" }, { name: "Shaman", value: "Shaman" }, { name: "Warlock", value: "Warlock" }, { name: "Warrior", value: "Warrior" },
+    )))
+  .addSubcommand((subcommand) => subcommand
+    .setName("sources")
+    .setDescription("See the Warmane forum sources awaiting guild review")
+    .addStringOption((option) => option.setName("class").setDescription("Optionally filter by class").setRequired(false).addChoices(
+      { name: "Death Knight", value: "Death Knight" }, { name: "Druid", value: "Druid" }, { name: "Hunter", value: "Hunter" },
+      { name: "Mage", value: "Mage" }, { name: "Paladin", value: "Paladin" }, { name: "Priest", value: "Priest" },
+      { name: "Rogue", value: "Rogue" }, { name: "Shaman", value: "Shaman" }, { name: "Warlock", value: "Warlock" }, { name: "Warrior", value: "Warrior" },
+    )));
 
 const armory = new WarmaneArmory();
 const cards = new ArmoryCardRenderer();
@@ -47,12 +69,47 @@ async function registerCommand(): Promise<void> {
   const route = config.discordGuildId
     ? Routes.applicationGuildCommands(config.discordClientId, config.discordGuildId)
     : Routes.applicationCommands(config.discordClientId);
-  await rest.put(route, { body: [command.toJSON()] });
+  await rest.put(route, { body: [command.toJSON(), upgradeCommand.toJSON()] });
 }
 
 client.once(Events.ClientReady, () => console.log(`PizzaWarriors Armory Bot is ready as ${client.user?.tag}.`));
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand() || interaction.commandName !== "armory") return;
+  if (!interaction.isChatInputCommand()) return;
+  if (interaction.commandName === "upgrade") {
+    const subcommand = interaction.options.getSubcommand();
+    const className = interaction.options.getString("class") ?? "Warrior";
+    const profiles = findUpgradeProfiles(className);
+    if (!profiles.length) {
+      await interaction.reply({ content: "No research profile is registered for that class yet.", flags: MessageFlags.Ephemeral });
+      return;
+    }
+    if (subcommand === "sources") {
+      const description = profiles.map((profile) => `**${profile.specName}** · ${profile.status}\n${formatUpgradeSources(profile)}`).join("\n\n");
+      const embed = new EmbedBuilder()
+        .setColor(0x5865f2)
+        .setTitle(`PizzaWarriors Upgrade Research · ${className}`)
+        .setDescription(description)
+        .setFooter({ text: "Forum sources are research inputs, not automatic recommendations." });
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+      return;
+    }
+    const profile = profiles[0];
+    const preview = createUpgradePreview(interaction.options.getString("name")?.trim() || "Your character", config.defaultRealm, profile);
+    const embed = new EmbedBuilder()
+      .setColor(0x5865f2)
+      .setTitle("PizzaWarriors Upgrade Advisor · Concept Preview")
+      .setDescription(`**${preview.characterName} · ${preview.realm}**\n${preview.headline}`)
+      .addFields(
+        { name: "Profile", value: `${preview.profile.className} · ${preview.profile.specName}\n${preview.profile.content}`, inline: true },
+        { name: "Readiness", value: preview.readiness, inline: true },
+        { name: "How a live result will work", value: preview.steps.map((step, index) => `${index + 1}. ${step}`).join("\n") },
+        { name: "Research source", value: formatUpgradeSources(preview.profile) },
+      )
+      .setFooter({ text: "No armory lookup or gear judgement was made in this preview." });
+    await interaction.reply({ embeds: [embed] });
+    return;
+  }
+  if (interaction.commandName !== "armory") return;
   const now = Date.now();
   const cooldownKey = `${interaction.guildId ?? "direct"}:${interaction.user.id}`;
   const retryAt = lookupCooldowns.get(cooldownKey) ?? 0;

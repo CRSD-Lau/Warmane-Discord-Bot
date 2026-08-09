@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- A disabled-by-design `/upgrade` concept preview and source browser for PizzaWarriors officer evaluation.
+- A versionable Warmane forum source registry, including current and supporting class resources.
+- Upgrade advisor walkthrough, source approval checklist, and example Discord posts.
+
 All notable changes to PizzaWarriors Armory Bot are documented here.
 
 ## [2.0.0] - 2026-08-09
