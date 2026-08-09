@@ -8,6 +8,10 @@
 - A versionable Warmane forum source registry, including current and supporting class resources.
 - Upgrade advisor walkthrough, source approval checklist, and example Discord posts.
 
+### Changed
+
+- `/upgrade` now reads the class from Warmane Armory while members select a pre-populated specialization.
+
 All notable changes to PizzaWarriors Armory Bot are documented here.
 
 ## [2.0.0] - 2026-08-09

@@ -8,6 +8,7 @@ import type { GearItem, GearScoreEquipLoc } from "./gearscore.js";
 type EquippedSlot = { id: number; slot: string; fallbackEquipLoc: GearScoreEquipLoc; iconUrl?: string };
 type ItemMetadata = Pick<GearItem, "name" | "itemLevel" | "quality" | "equipLoc"> & { fetchedAt: number };
 type Cache = { items: Record<string, ItemMetadata> };
+export type ArmoryCharacter = { armoryUrl: string; items: GearItem[]; portrait?: Buffer; className?: string; primarySpec?: string };
 
 const CACHE_FILE = join(process.cwd(), ".cache", "items.json");
 const CACHE_AGE_MS = 30 * 24 * 60 * 60 * 1000;
@@ -139,7 +140,8 @@ export class WarmaneArmory {
     }
   }
 
-  async getCharacter(name: string, realm: string): Promise<{ armoryUrl: string; items: GearItem[]; portrait?: Buffer }> {
+  /** Read a public Warmane character, including its first displayed talent specialization when available. */
+  async getCharacter(name: string, realm: string): Promise<ArmoryCharacter> {
     const url = armoryUrl(name, realm);
     const browser = await this.getBrowser();
     const context = await browser.newContext({ locale: "en-US", timezoneId: "America/Halifax", userAgent: USER_AGENT });
@@ -170,6 +172,18 @@ export class WarmaneArmory {
       }), sections) as EquippedSlot[];
       if (!equipped.length) throw new Error("No equipped items were found. The character may not exist, or Warmane blocked the lookup.");
       const portraitPromise = this.capturePortrait(page);
+      const identity = await page.evaluate(() => {
+        const levelRaceClass = document.querySelector(".level-race-class")?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+        const classes = ["Death Knight", "Druid", "Hunter", "Mage", "Paladin", "Priest", "Rogue", "Shaman", "Warlock", "Warrior"];
+        const className = classes.find((candidate) => new RegExp(`\\b${candidate}\\b`, "i").test(levelRaceClass));
+        const primarySpec = document.querySelector(".specialization")?.textContent
+          ?.split(/\r?\n/)
+          .map((line) => line.trim())
+          .find(Boolean)
+          ?.match(/^(.+?)\s+\d+\s*\/\s*\d+\s*\/\s*\d+$/)?.[1]
+          ?.trim();
+        return { ...(className ? { className } : {}), ...(primarySpec ? { primarySpec } : {}) };
+      });
       const items = await concurrentMap(equipped, 5, async (item) => ({
         id: item.id,
         slot: item.slot,
@@ -177,7 +191,7 @@ export class WarmaneArmory {
         ...(await this.getItemMetadata(item.id, item.fallbackEquipLoc)),
       }));
       const portrait = await portraitPromise;
-      return { armoryUrl: url, items, ...(portrait ? { portrait } : {}) };
+      return { armoryUrl: url, items, ...identity, ...(portrait ? { portrait } : {}) };
     } finally {
       await context.close();
     }

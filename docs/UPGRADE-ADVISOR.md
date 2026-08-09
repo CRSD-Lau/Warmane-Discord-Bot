@@ -7,18 +7,17 @@ The upgrade advisor is intentionally a **preview scaffold**, not a live recommen
 Restart the bot from this repository after pulling the scaffold. Guild-scoped commands normally refresh within seconds.
 
 ```text
-/upgrade preview name:Lausudo class:Warrior
-/upgrade sources class:Warrior
+/upgrade name:Lausudo spec:Retribution realm:Lordaeron
 ```
 
-`/upgrade preview` does **not** read the requested character, compare items, save data, or judge gear. It simply illustrates what the eventual post will contain. `/upgrade sources` is ephemeral, so only the person running it sees the research links.
+`/upgrade` reads the public Armory character to identify its class; the member selects their intended specialization from the pre-populated Discord selector. The command does **not** compare items, save data, or judge gear. It simply illustrates what the eventual post will contain for that class/spec profile.
 
 ## What the preview post looks like
 
 ```text
 PizzaWarriors Upgrade Advisor · Concept Preview
 
-Lausudo · Lordaeron
+Lausudo · Lordaeron · Retribution Paladin
 Preview only — this is not a live gear recommendation.
 
 PROFILE                         READINESS
@@ -72,6 +71,7 @@ All profiles in the code are `research` status. They are useful evidence, but ca
 | Death Knight, PvE | [2026 DK FAQ](https://forum.warmane.com/showthread.php?t=484293) | Warmane-specific mechanics and simulation caveats. |
 | Paladin, Holy | [Holy Paladin in-depth guide](https://forum.warmane.com/showthread.php?t=463331) | Recent stat and gear reference. |
 | Paladin, Protection | [Protection Paladin guide](https://forum.warmane.com/showthread.php?t=458156) | Tank baseline reference. |
+| Paladin, Retribution | [Retribution PvE guide](https://forum.warmane.com/showthread.php?t=325565) | Candidate source awaiting current guild review. |
 | Warrior, Fury | [Fury Warrior guide](https://forum.warmane.com/showthread.php?t=449174) | Gearing-oriented 2022 reference. |
 | Priest, Holy | [Holy Priest guide](https://forum.warmane.com/showthread.php?t=448147) | Gear, stats, enchants, and lower-geared example. |
 | Priest, Discipline | [Shieldspopping](https://forum.warmane.com/showthread.php?p=2764968&t=346233&viewfull=1) | Detailed supporting mechanics and gear reference. |
@@ -100,8 +100,8 @@ Approve one profile at a time. A profile becomes eligible for implementation onl
 1. Pick the first three guild-critical profiles—for example Fury Warrior, Holy Paladin, and Enhancement Shaman.
 2. Convert each approved profile into a small, versioned data file containing caps, constraints, allowed content, and reviewed candidate items.
 3. Add `/link` so members can choose a public character, realm, and spec.
-4. Add `/upgrade character:<name>`; it reads the existing Armory lookup, evaluates only an approved profile, and links the evidence.
-5. Test against officer-provided armories before enabling it for the guild.
+4. Extend `/upgrade` so it evaluates only an approved profile and links the evidence.
+5. Test against officer-provided armories before enabling recommendations for the guild.
 6. Optionally add `/ready` later to combine linked character GearScore and approved readiness context with Raid-Helper event signups.
 
 ## Guardrails that stay on

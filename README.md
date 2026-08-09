@@ -19,11 +19,10 @@ Look up a character with one slash command and receive a mobile-readable equipme
 
 ## Upgrade advisor preview
 
-The repository now includes a **non-live** `/upgrade` concept preview. It does not inspect a character or call any item an upgrade. Instead, it shows the post format and exposes the Warmane class-forum sources awaiting PizzaWarriors officer review.
+The repository now includes a **non-live** `/upgrade` concept preview. It reads the character's class from Warmane Armory, while the member chooses their specialization from the pre-populated selector. It does not call any item an upgrade.
 
 ```text
-/upgrade preview name:Lausudo class:Warrior
-/upgrade sources class:Warrior
+/upgrade name:Lausudo spec:Retribution realm:Lordaeron
 ```
 
 This is intentionally safe to test in Discord: no profile is approved yet, and the command cannot make a gear recommendation. Read the [upgrade-advisor walkthrough](docs/UPGRADE-ADVISOR.md) before deciding whether to activate the real feature.

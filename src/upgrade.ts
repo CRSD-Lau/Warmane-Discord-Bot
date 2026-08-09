@@ -54,6 +54,15 @@ export const upgradeProfiles: readonly UpgradeProfile[] = [
     sources: [{ title: "PVE Protection Paladin Guide", url: "https://forum.warmane.com/showthread.php?t=458156", publishedYear: 2023, note: "Recent PvE tank guide and baseline defence discussion." }],
   },
   {
+    id: "paladin-retribution-pve",
+    className: "Paladin",
+    specName: "Retribution",
+    status: "research",
+    content: "ICC / Ruby Sanctum",
+    reviewNote: "Translate the guide's cap, set bonus, and weapon rules into tested profile data before approval.",
+    sources: [{ title: "Retribution PvE 3.3.5a", url: "https://forum.warmane.com/showthread.php?t=325565", publishedYear: 2016, note: "Warmane Retribution PvE reference awaiting current guild review." }],
+  },
+  {
     id: "warrior-fury-pve",
     className: "Warrior",
     specName: "Fury",
@@ -165,6 +174,16 @@ export function createUpgradePreview(characterName: string, realm: string, profi
 export function findUpgradeProfiles(className?: string): readonly UpgradeProfile[] {
   if (!className) return upgradeProfiles;
   return upgradeProfiles.filter((profile) => profile.className.toLowerCase() === className.toLowerCase());
+}
+
+/** List every specialization that currently has a research profile for the Discord selector. */
+export const upgradeSpecNames = [...new Set(upgradeProfiles.map((profile) => profile.specName))];
+
+/** Find the closest research profile for the class and user-selected specialization. */
+export function findUpgradeProfile(className: string, specName: string): UpgradeProfile | undefined {
+  const sameClass = findUpgradeProfiles(className);
+  return sameClass.find((profile) => profile.specName.toLowerCase() === specName.toLowerCase())
+    ?? sameClass.find((profile) => profile.specName.includes("(all specs)"));
 }
 
 /** Format a compact source line that is safe to use inside a Discord embed field. */
