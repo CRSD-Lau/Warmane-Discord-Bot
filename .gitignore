@@ -4,3 +4,6 @@ dist/
 .cache/
 playwright/.cache/
 *.log
+data/raider-links.json
+coverage/
+*.tsbuildinfo

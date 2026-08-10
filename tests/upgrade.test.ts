@@ -12,6 +12,6 @@ assert.equal(preview.steps.length, 3);
 assert.match(formatUpgradeSources(fury), /forum\.warmane\.com/);
 assert.equal(findUpgradeProfiles("No Such Class").length, 0);
 assert.equal(findUpgradeProfile("Paladin", "Retribution")?.id, "paladin-retribution-pve");
-assert.equal(findUpgradeProfile("Death Knight", "Frost")?.id, "death-knight-pve");
+assert.equal(findUpgradeProfile("Death Knight", "Frost")?.id, "death-knight-frost-pve");
 
 console.log("Upgrade preview scaffold tests passed.");
