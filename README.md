@@ -1,4 +1,12 @@
-# PizzaWarriors Armory Bot
+# Retired: Warmane Discord Bot
+
+> **This repository is preserved for historical reference only and will receive no further releases.**
+>
+> PizzaWarriors has migrated to the actively maintained [PizzaWarriors Armory Bot](https://github.com/CRSD-Lau/PizzaWarriors-Armory-Bot). Please use that repository for issues, contributions, setup instructions, and all future updates.
+
+---
+
+# Historical README
 
 <p align="center">
   <img src="assets/pizzawarriors-armory-social-preview.png" alt="PizzaWarriors Armory Bot — Discord armory and raid-readiness tools for Warmane" width="100%">
