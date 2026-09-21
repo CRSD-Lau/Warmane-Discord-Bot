@@ -158,18 +158,7 @@ export class WarmaneArmory {
       // Warmane keeps a profile template in the DOM that can be visually hidden while its
       // equipment is usable. Wait for attachment rather than Playwright visibility.
       await page.waitForSelector("#character-profile, .item-left .item-slot", { state: "attached", timeout: 15_000 });
-      const equipped = await page.evaluate((pageSections) => pageSections.flatMap(({ selector, entries }) => {
-        const root = document.querySelector(selector);
-        if (!root) return [];
-        return Array.from(root.querySelectorAll(".item-slot")).flatMap((node, index) => {
-          const anchor = node.querySelector<HTMLAnchorElement>('a[rel*="item="], a[href*="item="]');
-          const raw = anchor?.getAttribute("rel") ?? anchor?.getAttribute("href") ?? "";
-          const id = Number(raw.match(/(?:^|[;?\/])item=(\d{2,7})/)?.[1]);
-          const entry = entries[index];
-          const iconUrl = node.querySelector<HTMLImageElement>("img")?.src?.replace(/^http:/i, "https:");
-          return id && entry ? [{ id, ...entry, ...(iconUrl ? { iconUrl } : {}) }] : [];
-        });
-      }), sections) as EquippedSlot[];
+      const equipped = await readEquippedSlots(page);
       if (!equipped.length) throw new Error("No equipped items were found. The character may not exist, or Warmane blocked the lookup.");
       const portraitPromise = this.capturePortrait(page);
       const identity = await page.evaluate(() => {
@@ -196,6 +185,21 @@ export class WarmaneArmory {
       await context.close();
     }
   }
+}
+
+export async function readEquippedSlots(page: Page): Promise<EquippedSlot[]> {
+  return await page.evaluate((pageSections) => pageSections.flatMap(({ selector, entries }) => {
+    const root = document.querySelector(selector);
+    if (!root) return [];
+    return Array.from(root.querySelectorAll(".item-slot")).flatMap((node, index) => {
+      const anchor = node.querySelector<HTMLAnchorElement>('a[rel*="item="], a[href*="item="]');
+      const raw = anchor?.getAttribute("rel") ?? anchor?.getAttribute("href") ?? "";
+      const id = Number(raw.match(/(?:^|[;?\/])item=(\d{2,7})/)?.[1]);
+      const entry = entries[index];
+      const iconUrl = node.querySelector<HTMLImageElement>("img")?.src?.replace(/^http:/i, "https:");
+      return id && entry ? [{ id, ...entry, ...(iconUrl ? { iconUrl } : {}) }] : [];
+    });
+  }), sections) as EquippedSlot[];
 }
 
 export function cacheKeyForCharacter(name: string, realm: string): string {
