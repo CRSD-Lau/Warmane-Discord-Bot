@@ -27,6 +27,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Install Playwright browsers for smoke coverage
+        run: npx playwright install --with-deps chromium chrome
+
       - name: Type-check
         run: npm run typecheck
 
